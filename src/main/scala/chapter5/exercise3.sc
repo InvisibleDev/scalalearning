@@ -1,6 +1,4 @@
 class Time (val hours: Int, val minutes: Int){
-  require((hours >= 0) && (hours < 24), "Hours can be within 0..23 range")
-  require((minutes >= 0) && (hours < 60), "Minutes can be within 0..59 range")
   def before(other: Time)= hours * minutes < other.hours * minutes
 }
 
