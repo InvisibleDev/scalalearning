@@ -1,0 +1,1 @@
+// JVM limitation: can't have functions or variable at the top level without object, class or trait definition
