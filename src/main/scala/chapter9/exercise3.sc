@@ -1,0 +1,1 @@
+io.Source.fromFile("c:/temp/sharpe_tabbed.csv").getLines.foreach(_.split(" ").filter(_.length > 12).map(println))
