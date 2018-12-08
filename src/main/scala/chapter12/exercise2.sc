@@ -1,0 +1,1 @@
+Seq(4,32,34,53,21,12,12).reduceLeft(math.max(_, _))
