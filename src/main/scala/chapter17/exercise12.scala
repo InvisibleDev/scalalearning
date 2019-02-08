@@ -6,12 +6,12 @@ import org.htmlcleaner.{HtmlCleaner, TagNode}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{Await, Future, Promise}
 
 /*
 One can use http://google.com or http://msn.com as an example input
  */
-object exercise8 extends App {
+object exercise12 extends App {
 
   val HyperLinkAttribute = "href"
   val HtmlCleaner = new HtmlCleaner()
@@ -24,10 +24,18 @@ object exercise8 extends App {
   def extractHyperlinks(root: TagNode) =
     Future(
       root.getElementsHavingAttribute(HyperLinkAttribute, true)
-        .map(_.getAttributeByName(HyperLinkAttribute)).filter(link => HyperLinkPrefixes.exists(link.startsWith))
-    )
-
-  val res = Await.result(enterUrl.flatMap(readAndParseUrl).flatMap(extractHyperlinks), 20.seconds)
+        .map{tagNode =>
+          val p = Promise[String]()
+          p.success(tagNode.getAttributeByName(HyperLinkAttribute))
+          p.future
+        }.toSeq)
+  // the idea of returning sequence of promised futures is bad because it defeats the purpose of promise to be accessible from outside of future
+  val res = Await.result(
+    enterUrl().flatMap(readAndParseUrl)
+      .flatMap(extractHyperlinks)
+      .flatMap(Future.sequence(_))
+      .map(_.filter(link => HyperLinkPrefixes.exists(link.startsWith))),
+    20.seconds)
   println("Entered URL contains the following hyperlinks:")
   res.foreach(println)
 }
